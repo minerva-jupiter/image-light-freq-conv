@@ -35,9 +35,8 @@ fn rgba_to_approx_wavelength(pixel: Rgba<u8>) -> f64 {
     let max = r.max(g).max(b);
     let min = r.min(g).min(b);
     let chroma = max - min;
-    let hue_deg; // 色相 (0.0 から 360.0 度)
 
-    if chroma == 0.0 {
+    let hue_deg = if chroma == 0.0 {
         return GREEN_WAVELENGTH_NM;
     } else {
         let mut h_prime = if max == r {
@@ -52,8 +51,8 @@ fn rgba_to_approx_wavelength(pixel: Rgba<u8>) -> f64 {
             h_prime += 6.0;
         }
 
-        hue_deg = h_prime * 60.0;
-    }
+        h_prime * 60.0
+    };
 
     let h_norm = hue_deg / 360.0;
 
@@ -79,14 +78,14 @@ fn rgba_to_approx_wavelength(pixel: Rgba<u8>) -> f64 {
 
         wavelength_nm = 450.0 - t_norm * (450.0 - MIN_WAVELENGTH_NM);
 
-        return wavelength_nm.max(MIN_WAVELENGTH_NM).min(MAX_WAVELENGTH_NM);
+        return wavelength_nm.clamp(MIN_WAVELENGTH_NM, MAX_WAVELENGTH_NM);
     }
 
-    wavelength_nm.max(MIN_WAVELENGTH_NM).min(MAX_WAVELENGTH_NM)
+    wavelength_nm.clamp(MIN_WAVELENGTH_NM, MAX_WAVELENGTH_NM)
 }
 
 fn wavelength_to_grayscale(wavelength_nm: f64) -> u8 {
-    let clamped_wavelength_nm = wavelength_nm.max(MIN_WAVELENGTH_NM).min(MAX_WAVELENGTH_NM);
+    let clamped_wavelength_nm = wavelength_nm.clamp(MIN_WAVELENGTH_NM, MAX_WAVELENGTH_NM);
 
     let range_length = MAX_WAVELENGTH_NM - MIN_WAVELENGTH_NM;
 
